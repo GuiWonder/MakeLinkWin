@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Windows.Forms;
 
 namespace MakeLink
@@ -10,7 +10,7 @@ namespace MakeLink
             InitializeComponent();
         }
 
-        private void buttonShowCMD_Click(object sender, EventArgs e)
+        private void ButtonShowCMD_Click(object sender, EventArgs e)
         {
             if (buttonShowCMD.Text == "显示命令行>>")
             {
@@ -26,12 +26,9 @@ namespace MakeLink
             }
         }
 
-        private void FormMain_Load(object sender, EventArgs e)
-        {
-            comboBox.SelectedIndex = 0;
-        }
+        private void FormMain_Load(object sender, EventArgs e) => comboBox.SelectedIndex = 0;
 
-        private void buttonCreate_Click(object sender, EventArgs e)
+        private void ButtonCreate_Click(object sender, EventArgs e)
         {
             if ((comboBox.SelectedIndex == 0 || comboBox.SelectedIndex == 2) && saveFileDialog.ShowDialog() == DialogResult.OK)
             {
@@ -43,7 +40,7 @@ namespace MakeLink
             }
         }
 
-        private void buttonPointTo_Click(object sender, EventArgs e)
+        private void ButtonPointTo_Click(object sender, EventArgs e)
         {
             if ((comboBox.SelectedIndex == 0 || comboBox.SelectedIndex == 2) && openFileDialog.ShowDialog() == DialogResult.OK)
             {
@@ -55,7 +52,7 @@ namespace MakeLink
             }
         }
 
-        private void buttonRun_Click(object sender, EventArgs e)
+        private void ButtonRun_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrWhiteSpace(textBoxCreate.Text) || string.IsNullOrWhiteSpace(textBoxPointTo.Text))
             {
@@ -63,8 +60,7 @@ namespace MakeLink
                 textBoxCMD.Text = "创建目标和指向位置不能为空！";
                 return;
             }
-
-            string cfg = "";
+            string cfg;
             switch (comboBox.SelectedIndex)
             {
                 case 0:
@@ -80,14 +76,27 @@ namespace MakeLink
                     cfg = "/j";
                     break;
                 default:
+                    cfg = "";
                     break;
             }
             string creatlk = textBoxCreate.Text.Trim();
+            string pointto = textBoxPointTo.Text.Trim();
+            if ((cfg == "/d" || cfg == "/j")
+                && System.IO.Directory.Exists(pointto)
+                && MessageBox.Show("指向位置是一个文件，确定要创建目录链接吗？", "提示", MessageBoxButtons.OKCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) != DialogResult.OK)
+            {
+                return;
+            }
+            else if ((cfg == "" || cfg == "/h")
+                && System.IO.File.Exists(pointto)
+                && MessageBox.Show("指向位置是一个目录，确定要创建文件链接吗？", "提示", MessageBoxButtons.OKCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) != DialogResult.OK)
+            {
+                return;
+            }
             if (creatlk.Contains(" "))
             {
                 creatlk = $"\"{creatlk}\"";
             }
-            string pointto = textBoxPointTo.Text.Trim();
             if (pointto.Contains(" "))
             {
                 pointto = $"\"{pointto}\"";
@@ -100,18 +109,19 @@ namespace MakeLink
             p.StartInfo.RedirectStandardInput = true;
             p.StartInfo.RedirectStandardOutput = true;
             p.StartInfo.RedirectStandardError = true;
-            p.StartInfo.CreateNoWindow = true;
+            p.StartInfo.CreateNoWindow = true;// false;
             p.Start();
             p.StandardOutput.ReadLine();
             p.StandardOutput.ReadLine();
             p.StandardOutput.ReadLine();
             p.StandardInput.WriteLine(mklink);
-            textBoxCMD.AppendText(p.StandardOutput.ReadLine() + "\r\n");
+            textBoxCMD.AppendText(SetOutput(p.StandardOutput.ReadLine()) + "\r\n");
             string result = p.StandardOutput.ReadLine();
             textBoxCMD.AppendText(result + "\r\n");
             p.StandardInput.WriteLine("exit");
             string err = p.StandardError.ReadToEnd();
             textBoxCMD.AppendText(err + "\r\n");
+            //textBoxCMD.AppendText(p.StandardOutput.ReadLine() + "\r\n");
             p.Close();
             if (string.IsNullOrWhiteSpace(result))
             {
@@ -121,6 +131,11 @@ namespace MakeLink
             {
                 MessageBox.Show(result, "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
+        }
+
+        private string SetOutput(string v)
+        {
+            return v.Contains(">") ? v.Substring(v.IndexOf(">")) : v;
         }
     }
 }
