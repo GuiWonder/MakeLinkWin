@@ -1,4 +1,4 @@
-﻿namespace MakeLink
+namespace MakeLink
 {
     partial class FormMain
     {
@@ -64,17 +64,23 @@
             // 
             // textBoxCreate
             // 
+            this.textBoxCreate.AllowDrop = true;
             this.textBoxCreate.Location = new System.Drawing.Point(15, 61);
             this.textBoxCreate.Name = "textBoxCreate";
             this.textBoxCreate.Size = new System.Drawing.Size(549, 23);
             this.textBoxCreate.TabIndex = 1;
+            this.textBoxCreate.DragDrop += new System.Windows.Forms.DragEventHandler(this.TextBox_DragDrop);
+            this.textBoxCreate.DragEnter += new System.Windows.Forms.DragEventHandler(this.TextBox_DragEnter);
             // 
             // textBoxPointTo
             // 
+            this.textBoxPointTo.AllowDrop = true;
             this.textBoxPointTo.Location = new System.Drawing.Point(15, 117);
             this.textBoxPointTo.Name = "textBoxPointTo";
             this.textBoxPointTo.Size = new System.Drawing.Size(549, 23);
             this.textBoxPointTo.TabIndex = 3;
+            this.textBoxPointTo.DragDrop += new System.Windows.Forms.DragEventHandler(this.TextBox_DragDrop);
+            this.textBoxPointTo.DragEnter += new System.Windows.Forms.DragEventHandler(this.TextBox_DragEnter);
             // 
             // buttonCreate
             // 
@@ -85,7 +91,7 @@
             this.buttonCreate.TabIndex = 2;
             this.buttonCreate.Text = "选择";
             this.buttonCreate.UseVisualStyleBackColor = true;
-            this.buttonCreate.Click += new System.EventHandler(this.buttonCreate_Click);
+            this.buttonCreate.Click += new System.EventHandler(this.ButtonCreate_Click);
             // 
             // buttonTo
             // 
@@ -96,7 +102,7 @@
             this.buttonTo.TabIndex = 4;
             this.buttonTo.Text = "选择";
             this.buttonTo.UseVisualStyleBackColor = true;
-            this.buttonTo.Click += new System.EventHandler(this.buttonPointTo_Click);
+            this.buttonTo.Click += new System.EventHandler(this.ButtonPointTo_Click);
             // 
             // comboBox
             // 
@@ -144,7 +150,7 @@
             this.buttonShowCMD.Text = "显示命令行>>";
             this.buttonShowCMD.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.buttonShowCMD.UseVisualStyleBackColor = true;
-            this.buttonShowCMD.Click += new System.EventHandler(this.buttonShowCMD_Click);
+            this.buttonShowCMD.Click += new System.EventHandler(this.ButtonShowCMD_Click);
             // 
             // buttonRun
             // 
@@ -154,7 +160,7 @@
             this.buttonRun.TabIndex = 5;
             this.buttonRun.Text = "执行";
             this.buttonRun.UseVisualStyleBackColor = true;
-            this.buttonRun.Click += new System.EventHandler(this.buttonRun_Click);
+            this.buttonRun.Click += new System.EventHandler(this.ButtonRun_Click);
             // 
             // FormMain
             // 
