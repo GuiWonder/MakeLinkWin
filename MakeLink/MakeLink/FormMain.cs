@@ -82,13 +82,13 @@ namespace MakeLink
             string creatlk = textBoxCreate.Text.Trim();
             string pointto = textBoxPointTo.Text.Trim();
             if ((cfg == "/d" || cfg == "/j")
-                && System.IO.Directory.Exists(pointto)
+                && System.IO.File.Exists(pointto)
                 && MessageBox.Show("指向位置是一个文件，确定要创建目录链接吗？", "提示", MessageBoxButtons.OKCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) != DialogResult.OK)
             {
                 return;
             }
             else if ((cfg == "" || cfg == "/h")
-                && System.IO.File.Exists(pointto)
+                && System.IO.Directory.Exists(pointto)
                 && MessageBox.Show("指向位置是一个目录，确定要创建文件链接吗？", "提示", MessageBoxButtons.OKCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) != DialogResult.OK)
             {
                 return;
@@ -109,11 +109,17 @@ namespace MakeLink
             p.StartInfo.RedirectStandardInput = true;
             p.StartInfo.RedirectStandardOutput = true;
             p.StartInfo.RedirectStandardError = true;
-            p.StartInfo.CreateNoWindow = true;// false;
+            p.StartInfo.CreateNoWindow = true;
             p.Start();
+
             p.StandardOutput.ReadLine();
             p.StandardOutput.ReadLine();
             p.StandardOutput.ReadLine();
+
+            //p.StandardInput.WriteLine("TITLE %cd%");
+            //textBoxCMD.AppendText(p.StandardOutput.ReadLine() + "\r\n");
+            //textBoxCMD.AppendText(p.StandardOutput.ReadLine() + "\r\n");
+
             p.StandardInput.WriteLine(mklink);
             textBoxCMD.AppendText(SetOutput(p.StandardOutput.ReadLine()) + "\r\n");
             string result = p.StandardOutput.ReadLine();
@@ -122,8 +128,13 @@ namespace MakeLink
             string err = p.StandardError.ReadToEnd();
             textBoxCMD.AppendText(err + "\r\n");
             //textBoxCMD.AppendText(p.StandardOutput.ReadLine() + "\r\n");
+            //textBoxCMD.AppendText(p.StandardOutput.ReadLine() + "\r\n");
+            //p.StandardOutput.ReadLine();
+            //p.StandardOutput.ReadLine();
+
+            //textBoxCMD.AppendText(p.StandardOutput.ReadLine() + "\r\n");
             p.Close();
-            if (string.IsNullOrWhiteSpace(result))
+            if (!string.IsNullOrWhiteSpace(err))
             {
                 MessageBox.Show(err, "提示", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
@@ -136,6 +147,16 @@ namespace MakeLink
         private string SetOutput(string v)
         {
             return v.Contains(">") ? v.Substring(v.IndexOf(">")) : v;
+        }
+
+        private void TextBox_DragEnter(object sender, DragEventArgs e)
+        {
+            e.Effect = e.Data.GetDataPresent(DataFormats.FileDrop) ? DragDropEffects.All : DragDropEffects.None;
+        }
+
+        private void TextBox_DragDrop(object sender, DragEventArgs e)
+        {
+            ((TextBox)sender).Text = ((System.Array)e.Data.GetData(DataFormats.FileDrop)).GetValue(0).ToString();
         }
     }
 }
