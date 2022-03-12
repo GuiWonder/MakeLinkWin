@@ -79,8 +79,8 @@ namespace MakeLink
                     cfg = "";
                     break;
             }
-            string creatlk = textBoxCreate.Text.Trim();
-            string pointto = textBoxPointTo.Text.Trim();
+            string creatlk = textBoxCreate.Text.Trim().Replace('/', '\\');
+            string pointto = textBoxPointTo.Text.Trim().Replace('/', '\\');
             if ((cfg == "/d" || cfg == "/j")
                 && System.IO.File.Exists(pointto)
                 && MessageBox.Show("指向位置是一个文件，确定要创建目录链接吗？", "提示", MessageBoxButtons.OKCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) != DialogResult.OK)
@@ -92,6 +92,16 @@ namespace MakeLink
                 && MessageBox.Show("指向位置是一个目录，确定要创建文件链接吗？", "提示", MessageBoxButtons.OKCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) != DialogResult.OK)
             {
                 return;
+            }
+            string dir = System.IO.Path.GetDirectoryName(creatlk.TrimEnd('\\'));
+            if (!string.IsNullOrEmpty(dir)&&!dir.EndsWith("\\"))
+            {
+                dir += "\\";
+            }
+            if (checkBoxXD.Checked && System.IO.Directory.Exists(dir))
+            {
+                creatlk = ToXiangdui(dir, creatlk.TrimEnd('\\'));
+                pointto = ToXiangdui(dir, pointto.TrimEnd('\\'));
             }
             if (creatlk.Contains(" "))
             {
@@ -105,6 +115,11 @@ namespace MakeLink
             textBoxCMD.Clear();
             System.Diagnostics.Process p = new System.Diagnostics.Process();
             p.StartInfo.FileName = "cmd.exe";
+            //p.StartInfo.Verb = "runas";
+            if (System.IO.Directory.Exists(dir))
+            {
+                p.StartInfo.WorkingDirectory = dir;
+            }
             p.StartInfo.UseShellExecute = false;
             p.StartInfo.RedirectStandardInput = true;
             p.StartInfo.RedirectStandardOutput = true;
@@ -121,7 +136,8 @@ namespace MakeLink
             //textBoxCMD.AppendText(p.StandardOutput.ReadLine() + "\r\n");
 
             p.StandardInput.WriteLine(mklink);
-            textBoxCMD.AppendText(SetOutput(p.StandardOutput.ReadLine()) + "\r\n");
+            //textBoxCMD.AppendText(SetOutput(p.StandardOutput.ReadLine()) + "\r\n");
+            textBoxCMD.AppendText(p.StandardOutput.ReadLine() + "\r\n");
             string result = p.StandardOutput.ReadLine();
             textBoxCMD.AppendText(result + "\r\n");
             p.StandardInput.WriteLine("exit");
@@ -142,6 +158,85 @@ namespace MakeLink
             {
                 MessageBox.Show(result, "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
+        }
+
+        private string ToXiangdui(string textM, string textQ)
+        {
+            string pM = FitPath(textM);
+            string pQ = FitPath(textQ);
+            if (string.IsNullOrEmpty(pM) || string.IsNullOrEmpty(pQ))
+            {
+                return textQ;
+            }
+            string[] sM = pM.Split('\\');
+            string[] sQ = pQ.Split('\\');
+            int len = Math.Min(sM.Length, sQ.Length);
+            int sameIndex = -1;
+            for (int i = 0; i < len - 1; i++)
+            {
+                if (sM[i].ToLower() == sQ[i].ToLower())
+                {
+                    sameIndex = i;
+                }
+                else
+                {
+                    break;
+                }
+            }
+            if (sameIndex < 0)
+            {
+                return textQ;
+            }
+            string s1 = "";
+            for (int i = sameIndex + 1; i < sM.Length - 1; i++)
+            {
+                s1 += "..\\";
+            }
+            for (int i = sameIndex + 1; i < sQ.Length - 1; i++)
+            {
+                s1 += sQ[i] + "\\";
+            }
+            s1 += sQ[sQ.Length - 1];
+            return s1;
+        }
+
+        private string FitPath(string p)
+        {
+            if (string.IsNullOrEmpty(p))
+            {
+                return "";
+            }
+            p = p.Replace('/', '\\');
+            string[] s1 = p.Split('\\');
+            System.Collections.Generic.List<string> lst = new System.Collections.Generic.List<string>();
+            for (int i = 0; i < s1.Length; i++)
+            {
+                if (s1[i] == ".." && i != s1.Length - 1)
+                {
+                    if (lst.Count > 0)
+                    {
+                        lst.RemoveAt(lst.Count - 1);
+                    }
+                    else
+                    {
+                        return "";
+                    }
+                }
+                else if (s1[i] != "." && s1[i] != "")
+                {
+                    lst.Add(s1[i]);
+                }
+            }
+            string pnew = p.StartsWith("\\") ? "\\" : "";
+            if (lst.Count > 0)
+            {
+                pnew += string.Join("\\", lst);
+                if (p.EndsWith("\\"))
+                {
+                    pnew += "\\";
+                }
+            }
+            return pnew;
         }
 
         private string SetOutput(string v)
