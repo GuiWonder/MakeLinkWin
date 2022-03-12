@@ -42,6 +42,7 @@ namespace MakeLink
             this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.saveFileDialog = new System.Windows.Forms.SaveFileDialog();
             this.buttonRun = new System.Windows.Forms.Button();
+            this.checkBoxXD = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // label1
@@ -154,13 +155,23 @@ namespace MakeLink
             // 
             // buttonRun
             // 
-            this.buttonRun.Location = new System.Drawing.Point(317, 6);
+            this.buttonRun.Location = new System.Drawing.Point(407, 6);
             this.buttonRun.Name = "buttonRun";
             this.buttonRun.Size = new System.Drawing.Size(75, 23);
             this.buttonRun.TabIndex = 5;
             this.buttonRun.Text = "执行";
             this.buttonRun.UseVisualStyleBackColor = true;
             this.buttonRun.Click += new System.EventHandler(this.ButtonRun_Click);
+            // 
+            // checkBoxXD
+            // 
+            this.checkBoxXD.AutoSize = true;
+            this.checkBoxXD.Location = new System.Drawing.Point(238, 8);
+            this.checkBoxXD.Name = "checkBoxXD";
+            this.checkBoxXD.Size = new System.Drawing.Size(130, 19);
+            this.checkBoxXD.TabIndex = 8;
+            this.checkBoxXD.Text = "优先使用相对路径";
+            this.checkBoxXD.UseVisualStyleBackColor = true;
             // 
             // FormMain
             // 
@@ -169,6 +180,7 @@ namespace MakeLink
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
             this.ClientSize = new System.Drawing.Size(581, 191);
+            this.Controls.Add(this.checkBoxXD);
             this.Controls.Add(this.buttonRun);
             this.Controls.Add(this.textBoxCMD);
             this.Controls.Add(this.comboBox);
@@ -209,6 +221,7 @@ namespace MakeLink
         private System.Windows.Forms.OpenFileDialog openFileDialog;
         private System.Windows.Forms.SaveFileDialog saveFileDialog;
         private System.Windows.Forms.Button buttonRun;
+        private System.Windows.Forms.CheckBox checkBoxXD;
     }
 }
 
