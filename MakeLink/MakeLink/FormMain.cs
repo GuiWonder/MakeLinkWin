@@ -8,6 +8,7 @@ namespace MakeLink
         public FormMain()
         {
             InitializeComponent();
+            comboBox.SelectedIndex = 0;
         }
 
         private void ButtonShowCMD_Click(object sender, EventArgs e)
@@ -26,17 +27,11 @@ namespace MakeLink
             }
         }
 
-        private void FormMain_Load(object sender, EventArgs e) => comboBox.SelectedIndex = 0;
-
         private void ButtonCreate_Click(object sender, EventArgs e)
         {
-            if ((comboBox.SelectedIndex == 0 || comboBox.SelectedIndex == 2) && saveFileDialog.ShowDialog() == DialogResult.OK)
+            if (saveFileDialog.ShowDialog() == DialogResult.OK)
             {
                 textBoxCreate.Text = saveFileDialog.FileName;
-            }
-            else if ((comboBox.SelectedIndex == 1 || comboBox.SelectedIndex == 3) && folderBrowserDialog.ShowDialog() == DialogResult.OK)
-            {
-                textBoxCreate.Text = folderBrowserDialog.SelectedPath;
             }
         }
 
