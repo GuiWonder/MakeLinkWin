@@ -108,45 +108,36 @@ namespace MakeLink
             }
             string mklink = $"mklink {cfg} {creatlk} {pointto}";
             textBoxCMD.Clear();
+            
             System.Diagnostics.Process p = new System.Diagnostics.Process();
-            p.StartInfo.FileName = "cmd.exe";
+            p.StartInfo.FileName = "cmd";
             //p.StartInfo.Verb = "runas";
             if (System.IO.Directory.Exists(dir))
             {
                 p.StartInfo.WorkingDirectory = dir;
             }
+            string argcmd = "/c";
+            argcmd += $" \"{mklink}\"";
+            p.StartInfo.Arguments = argcmd;
             p.StartInfo.UseShellExecute = false;
-            p.StartInfo.RedirectStandardInput = true;
-            p.StartInfo.RedirectStandardOutput = true;
-            p.StartInfo.RedirectStandardError = true;
             p.StartInfo.CreateNoWindow = true;
+            p.StartInfo.RedirectStandardError = true;
+            p.StartInfo.RedirectStandardOutput = true;
+            textBoxCMD.AppendText($"{p.StartInfo.WorkingDirectory}>{mklink}" + "\r\n");
             p.Start();
-
-            p.StandardOutput.ReadLine();
-            p.StandardOutput.ReadLine();
-            p.StandardOutput.ReadLine();
-
-            //p.StandardInput.WriteLine("TITLE %cd%");
-            //textBoxCMD.AppendText(p.StandardOutput.ReadLine() + "\r\n");
-            //textBoxCMD.AppendText(p.StandardOutput.ReadLine() + "\r\n");
-
-            p.StandardInput.WriteLine(mklink);
-            //textBoxCMD.AppendText(SetOutput(p.StandardOutput.ReadLine()) + "\r\n");
-            textBoxCMD.AppendText(p.StandardOutput.ReadLine() + "\r\n");
-            string result = p.StandardOutput.ReadLine();
-            textBoxCMD.AppendText(result + "\r\n");
-            p.StandardInput.WriteLine("exit");
             string err = p.StandardError.ReadToEnd();
-            textBoxCMD.AppendText(err + "\r\n");
-            //textBoxCMD.AppendText(p.StandardOutput.ReadLine() + "\r\n");
-            //textBoxCMD.AppendText(p.StandardOutput.ReadLine() + "\r\n");
-            //p.StandardOutput.ReadLine();
-            //p.StandardOutput.ReadLine();
-
-            //textBoxCMD.AppendText(p.StandardOutput.ReadLine() + "\r\n");
+            string result = p.StandardOutput.ReadToEnd();
+            //p.WaitForExit();
             p.Close();
+            
+            if (!string.IsNullOrWhiteSpace(result))
+            {
+                textBoxCMD.AppendText(result + "\r\n");
+            }
+
             if (!string.IsNullOrWhiteSpace(err))
             {
+                textBoxCMD.AppendText(err + "\r\n");
                 MessageBox.Show(err, "提示", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             else
