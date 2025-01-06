@@ -170,7 +170,7 @@ namespace MakeLink
             this.checkBoxXD.Name = "checkBoxXD";
             this.checkBoxXD.Size = new System.Drawing.Size(130, 19);
             this.checkBoxXD.TabIndex = 8;
-            this.checkBoxXD.Text = "优先使用相对路径";
+            this.checkBoxXD.Text = "尝试使用相对路径";
             this.checkBoxXD.UseVisualStyleBackColor = true;
             // 
             // FormMain

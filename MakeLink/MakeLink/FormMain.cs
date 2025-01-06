@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace MakeLink
@@ -55,6 +56,10 @@ namespace MakeLink
                 textBoxCMD.Text = "创建目标和指向位置不能为空！";
                 return;
             }
+            if (!PathNameOK(textBoxCreate.Text) || !PathNameOK(textBoxPointTo.Text))
+            {
+                return;
+            }
             string cfg;
             switch (comboBox.SelectedIndex)
             {
@@ -88,8 +93,29 @@ namespace MakeLink
             {
                 return;
             }
-            string dir = System.IO.Path.GetDirectoryName(creatlk.TrimEnd('\\'));
-            if (!string.IsNullOrEmpty(dir)&&!dir.EndsWith("\\"))
+
+            try
+            {
+                RunCMD(creatlk, pointto, cfg);
+            }
+            catch (Exception ept)
+            {
+                MessageBox.Show(ept.Message);               
+            }
+        }
+
+        private void RunCMD(string creatlk, string pointto, string cfg)
+        {
+            string dir;
+            try
+            {
+                dir = System.IO.Path.GetDirectoryName(creatlk.TrimEnd('\\'));
+            }
+            catch (Exception)
+            {
+                dir = "";
+            }
+            if (!string.IsNullOrEmpty(dir) && !dir.EndsWith("\\"))
             {
                 dir += "\\";
             }
@@ -98,27 +124,23 @@ namespace MakeLink
                 creatlk = ToXiangdui(dir, creatlk.TrimEnd('\\'));
                 pointto = ToXiangdui(dir, pointto.TrimEnd('\\'));
             }
-            if (creatlk.Contains(" "))
-            {
-                creatlk = $"\"{creatlk}\"";
-            }
-            if (pointto.Contains(" "))
-            {
-                pointto = $"\"{pointto}\"";
-            }
+            creatlk = $"\"{creatlk}\"";
+            pointto = $"\"{pointto}\"";
+
             string mklink = $"mklink {cfg} {creatlk} {pointto}";
             textBoxCMD.Clear();
-            
+
             System.Diagnostics.Process p = new System.Diagnostics.Process();
             p.StartInfo.FileName = "cmd";
-            //p.StartInfo.Verb = "runas";
             if (System.IO.Directory.Exists(dir))
             {
                 p.StartInfo.WorkingDirectory = dir;
             }
-            string argcmd = "/c";
+            string argcmd = "/u /c";
             argcmd += $" \"{mklink}\"";
             p.StartInfo.Arguments = argcmd;
+            p.StartInfo.StandardOutputEncoding = System.Text.Encoding.Unicode;
+            p.StartInfo.StandardErrorEncoding = System.Text.Encoding.Unicode;
             p.StartInfo.UseShellExecute = false;
             p.StartInfo.CreateNoWindow = true;
             p.StartInfo.RedirectStandardError = true;
@@ -129,7 +151,7 @@ namespace MakeLink
             string result = p.StandardOutput.ReadToEnd();
             //p.WaitForExit();
             p.Close();
-            
+
             if (!string.IsNullOrWhiteSpace(result))
             {
                 textBoxCMD.AppendText(result + "\r\n");
@@ -143,7 +165,21 @@ namespace MakeLink
             else
             {
                 MessageBox.Show(result, "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }           
+        }
+
+        private bool PathNameOK(string text)
+        {
+            char[] unchars = new char[] { '/', '\\', ':', '*', '?', '"', '<', '>', '|' };
+            foreach (char item in unchars)
+            {
+                if (text.Contains(item))
+                {
+                    MessageBox.Show($"路径“{text}”中含有非法字符“{item}”，请检查！", "提示", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return false;
+                }
             }
+            return true;
         }
 
         private string ToXiangdui(string textM, string textQ)
@@ -223,11 +259,6 @@ namespace MakeLink
                 }
             }
             return pnew;
-        }
-
-        private string SetOutput(string v)
-        {
-            return v.Contains(">") ? v.Substring(v.IndexOf(">")) : v;
         }
 
         private void TextBox_DragEnter(object sender, DragEventArgs e)
