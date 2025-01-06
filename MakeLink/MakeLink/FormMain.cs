@@ -170,7 +170,7 @@ namespace MakeLink
 
         private bool PathNameOK(string text)
         {
-            char[] unchars = new char[] { '/', '\\', ':', '*', '?', '"', '<', '>', '|' };
+            char[] unchars = new char[] { '*', '?', '"', '<', '>', '|' };
             foreach (char item in unchars)
             {
                 if (text.Contains(item))
